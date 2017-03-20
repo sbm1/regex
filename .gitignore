@@ -1,0 +1,5 @@
+*.pyc
+*.pyo
+__pycache__
+*.out
+parsetab.py
