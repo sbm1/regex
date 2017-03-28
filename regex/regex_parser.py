@@ -1,5 +1,4 @@
 from ply import lex, yacc
-from regex.parse_tree import RegexNode
 
 class Parser(object):
     '''
@@ -9,7 +8,7 @@ class Parser(object):
     precedence = ()
 
     def __init__(self):
-        self.root = None
+        self.tree = None
         
         lex.lex(module=self)
         yacc.yacc(module=self)
@@ -70,21 +69,21 @@ class Regex(Parser):
         '''
         grammar : regex
         '''
-        self.root = RegexNode("grammar", p[1:])
+        self.tree = p[1:]
 
     def p_regex(self, p):
         '''
         regex : expression
               | empty
         '''
-        p[0] = RegexNode("regex", p[1:])
+        p[0] = p[1:]
 
     def p_expression(self, p):
         '''
         expression : expression expr
                    | expr
         '''
-        p[0] = RegexNode("expression", p[1:])
+        p[0] = p[1:]
 
     def p_expr(self, p):
         '''
@@ -92,19 +91,19 @@ class Regex(Parser):
              | orexpr
              | id
         '''
-        p[0] = RegexNode("expr", p[1:])
+        p[0] = p[1:]
 
     def p_bracketexpr(self, p):
         '''
         bracketexpr : LBRACKET regex RBRACKET symbol
         '''
-        p[0] = RegexNode("bracketexpr", p[1:])
+        p[0] = p[1:]
 
     def p_orexpr(self, p):
         '''
         orexpr : expr OR expr
         '''
-        p[0] = RegexNode("orexpr", p[1:])
+        p[0] = p[1:]
 
     def p_id(self, p):
         '''
@@ -112,14 +111,14 @@ class Regex(Parser):
            | LBRACE range RBRACE symbol
            | EMPTY
         '''
-        p[0] = RegexNode("id", p[1:])
+        p[0] = p[1:]
 
     def p_range(self, p):
         '''
         range : range rangeid
               | empty
         '''
-        p[0] = RegexNode("range", p[1:])
+        p[0] = p[1:]
 
     # TODO: add NOT token and generally improve grammar
     def p_rangeid(self, p):
@@ -127,7 +126,7 @@ class Regex(Parser):
         rangeid : ID
                 | ID DASH ID
         '''
-        p[0] = RegexNode("rangeid", p[1:])
+        p[0] = p[1:]
 
     def p_symbol(self, p):
         '''
@@ -135,7 +134,7 @@ class Regex(Parser):
                | PLUS
                | empty
         '''
-        p[0] = RegexNode("symbol", p[1:])
+        p[0] = p[1:]
 
     def p_empty(self, p):
         '''
