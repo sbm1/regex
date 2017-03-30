@@ -101,7 +101,7 @@ class Regex(Parser):
 
     def p_orexpr(self, p):
         '''
-        orexpr : expr OR expr
+        orexpr : expression OR expression
         '''
         p[0] = p[1:]
 
