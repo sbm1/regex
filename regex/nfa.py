@@ -1,367 +1,212 @@
-class NFA(object):
-    '''
-    Non-deterministic Finite Automata object using Thompson's algorithm.
-    '''
-    def __init__(self):
-        '''
-        Initialise the NFA's initial and current states
-        '''
-        self._initial_state = State()
-        self._current_state = self._initial_state
-
-    def get_initial_state(self):
-        '''
-        Returns the initial state
-
-        @return -- State
-        '''
-        return self._initial_state
-
-    def get_current_state(self):
-        '''
-        Returns the current state
-
-        @return -- State
-        '''
-        return self._current_state
-
-    def remove_initial_state(self):
-        '''
-        Removes the inital state from the NFA (for sub-nfas)
-        '''
-        self._initial_state = None
-
-    def concat(self, s):
-        '''
-        Concatenates the basic symbols of an RE to the NFA
-
-        @param s -- srting
-        '''
-        for c in s:
-            next_state = State()
-            e = Edge(self._current_state, next_state, c)
-
-            self._current_state.add_outlink(e)
-            next_state.add_inlink(e)
-
-            self._current_state.non_accept()
-            self._current_state = next_state
-            self._current_state.make_accept()
-
-    def concat_nfa(self, n):
-        '''
-        Concatenates an NFA to this NFA
-
-        @param n -- nfa
-        '''
-        epsilon = Edge(self._current_state, n.get_initial_state(), 'E')
-        self._current_state.add_outlink(epsilon)
-        n.get_initial_state().add_inlink(epsilon)
-
-        self._current_state.non_accept()
-        self._current_state = n.get_current_state()
-        self._current_state.make_accept()
-
-    def create_or_branch(self, n):
-        '''
-        Create a branch coming from the initial state when or occurs and insert the alternative nfa. 
-
-        @param n -- nfa
-        '''
-        epsilon = Edge(self._initial_state, n.get_initial_state(), 'E')
-        self._initial_state.add_outlink(epsilon)
-        n.get_initial_state().add_inlink(epsilon)
-
-        epsilon = Edge(n.get_current_state(), self._current_state, 'E')
-        n.get_current_state.add_outlink(epsilon)
-        self._current_state.add_inlink(epsilon)
-
-        n.get_current_state().non_accept()
-
-    def kleene_star(self, c):
-        '''
-        Deals with N(s*) by adding new links.
-
-        @param c -- edge char
-        '''
-        e = Edge(self._current_state, self._current_state, c)
-        self._current_state.add_inlink(e)
-        self._current_state.add_outlink(e)
-
-        epsilon = Edge(self._current_state.source_of(c), self._current_state, 'E')
-        self._current_state.add_inlink(epsilon)
-        self._current_satte.source_of(c).add_outlink(epsilon)
-
-    def kleene_star_nfa(self, n):
-        '''
-        Deals with N(s)*
-
-        @param n -- nfa
-        '''
-        epsilon = Edge(self._current_state, n.get_initial_state(), 'E')
-        self._current_state.add_outlink(epsilon)
-        n.get_initial_state().add_inlink(epsilon)
-
-        epsilon = Edge(n.get_current_state, n.get_initial_state(), 'E')
-        n.get_current_state.add_outlink(epsilon)
-        n.get_initial_state().add_inlink(epsilon)
-
-        next_state = State()
-
-        epsilon = Edge(self._current_state, next_state, 'E')
-        n.get_current_state.add_outlink(epsilon)
-        next_state.add_inlink(epsilon)
-
-        self._current_state.non_accept()
-        self._current_state = next_state
-        self._current_state.make_accept()
-
+epsilon = 'E'
 
 class State(object):
     '''
-    State object. How each State of the Non-deterministic Finite Automata is defined.
+    Each state of an NFA.
+    Contains lists of links out and in to the connecting states in the NFA.
     '''
     def __init__(self):
         '''
-        Initialise the Sate with false accept state and empty links
+        Initialise state.
+        Vars: accept    -- whether the state is an accept state
+              out_links -- list of State objects that this state has an outward connection to
+              in_links  -- list of State objects that this state has an outward connection to
+              state_no  -- number of the state in the NFA (initially not set)
         '''
-        self._accept_state = False
-        self._outlinks = []
-        self._inlinks = []
+        self._accept = False
+        self._out_links = []
+        self._in_links = []
+        self.state_no = None
 
-    def is_accept(self):
+    def get_out_links(self):
         '''
-        @return -- is the State an accept state
+        @return -- list
         '''
-        return self._accept_state
+        return self._out_links
 
-    def make_accept(self):
+    def get_in_links(self):
         '''
-        Sets the accept state to True
+        @return -- list
         '''
-        self._accept_state = True
+        return self._in_links
 
-    def non_accept(self):
+    def get_accept(self):
         '''
-        Sets the accept state to False
+        @return -- boolean
         '''
-        self._accept_state = False
+        return self._accept
 
-    def get_outlinks(self):
+    def add_out_link(self, edge):
         '''
-        @return -- State's out links
+        Adds a given edge tuple (state, char) to the state's outlinks
+        @param edge -- tuple
         '''
-        return self._outlinks
+        self._out_links.append(edge)
 
-    def add_outlink(self, e):
+    def add_in_link(self, edge):
         '''
-        Adds an new out link to the state
+        Adds a given edge tuple (state, char) to the state's inlinks
+        @param edge -- tuple
         '''
-        self._outlinks.append(e)
-
-    def get_inlinks(self):
-        '''
-        @return -- State's in links
-        '''
-        return self._inlinks
-
-    def add_inlink(self, e):
-        '''
-        Adds an new in link to the state
-        '''
-        self._inlinks.append(e)
-
-    def contains_outlink(self, c):
-        '''
-        Returns true if the State contains the out link with a given label
-
-        @param c -- edge char
-
-        @return -- Boolean
-        '''
-        for edge in self._outlinks:
-            if edge.get_label() == c:
-                return True
-        return False
-
-    def next_state(self, c):
-        '''
-        Gives the next state with edge c
-
-        @param -- edge char
-
-        @return -- State
-        '''
-        for edge in self._outlinks:
-            if edge.get_label() == c:
-                return edge.get_target()
-        return State()
-
-    def source_of(self, c):
-        '''
-        Returns the source State with given edge
-
-        @param c -- edge char
-
-        @return -- State
-        '''
-        for edge in self._inlinks:
-            if edge.get_label() == c:
-                return edge.get_source()
-        return State()
-
-    def remove_outlink(self, c):
-        '''
-        Removes Edges from the out links of the State if they're labelled c
-
-        @param c -- edge char
-        '''
-        for edge in self._outlinks:
-            if edge.get_label() == c:
-                self._outlinks.remove(edge)
+        self._in_links.append(edge)
 
 
-class Edge(object):
+def build_nfa(tree):
     '''
-    Edge object. Describes the link between States
+    Build an Non-deterministic Finite Automata from a ParseTree.
+    An NFA is represented by a list of State objects in the NFA
+
+    @param tree -- ParseTree
+
+    @return -- list
     '''
-    def __init__(self, source, target, label):
-        '''
-        @param source -- source State
-        @param target -- target State
-        @param label -- edge character
-        '''
-        self._edge = source, target, label
+    # if the node has value None then the node's children need to be cycled through
+    if tree.value is None:
+        # sub NFAs will be built from the children of each node
+        sub_nfas = []
 
-    def get_source(self):
-        '''
-        @return -- source State
-        '''
-        return self._edge[0]
+        for child in tree.children:
+            sub_nfa = build_nfa(child)
+            # if there is a sub NFA from this branch it is appended
+            if sub_nfa:
+                sub_nfas.append(sub_nfa)
 
-    def get_target(self):
-        '''
-        @return -- target State
-        '''
-        return self._edge[1]
+        # now check what the sub NFA list contains and deal with each applicably
 
-    def get_label(self):
-        '''
-        @return -- edge char
-        '''
-        return self._edge[2]
+        # for or nodes the list will look like [ nfa, '|', nfa ]
+        if '|' in sub_nfas and len(sub_nfas) == 3:
+            return create_or_branch(sub_nfas[0], sub_nfas[2])
 
+        # kleene star nodes will have [ nfa, '*' ]
+        elif '*' in sub_nfas and len(sub_nfas) == 2:
+            return kleene_star(sub_nfas[0])
 
-def build_nfa(regex):
-    '''
-    Function for building a Non-deterministic Finite Automata from a regeular expression.
+        # '+' will be the same but has different application
+        elif '+' in sub_nfas and len(sub_nfas) == 2:
+            return concat(sub_nfas[0], kleene_star(sub_nfas[0]))
 
-    @param regex -- String
-
-    @return -- NFA
-    '''
-    nfa = NFA()
-
-    exprs, sub_exprs = split_regex(regex)
-
-    for i, e in enumerate(exprs):
-        if isinstance(e, str):
-            if '|' in e:
-                create_or(nfa, e)
-            elif '*' in e:
-                star(nfa, e)
-        else:
-            sub_nfa = build_nfa(sub_exprs[e])
-            # need to check if next element is *
-            # if so then kleene_star_nfa() else concat_nfa()
-            if i+1 != len(exprs) and exprs[i+1][0] is '*':
-                nfa.kleene_star_nfa(sub_nfa)
+        # bracket nodes will be [ '(', nfa, ')', '*' ]
+        # the final star may not be there so both sizes will need to be checked
+        elif '(' in sub_nfas and (len(sub_nfas) == 4 or len(sub_nfas) == 3):
+            if '*' in sub_nfas:
+                return kleene_star(sub_nfas[1])
             else:
-                nfa.concat_nfa(sub_nfa)
+                return sub_nfas[1]
+        
+        # if the list is size two then the node contains two sub NFAs that need to be concatenated
+        elif len(sub_nfas) == 2:
+            return concat(sub_nfas[0], sub_nfas[1])
 
-    return nfa
+        # size is 1 could contain chars * or +
+        elif len(sub_nfas) == 1:
+            return sub_nfas[0]
+        
+        # otherwise return (empty list)
+        else:
+            return sub_nfas
 
-def create_or(nfa, exprs):
-    '''
-    Create or branch for the given NFA using a list of exprs split by '|'
-    e.g. : 'a|b' -> ['a', 'b']
-
-    @param nfa -- NFA
-    @param exprs -- list
-    '''
-    sub_nfa = NFA()
-    exprs = exprs.split('|')
-
-    if '*' in exprs[0]:
-        star(sub_nfa, exprs[0])
+    # if not None then op or char
     else:
-        sub_nfa.concat(exprs[0])
+        # operators should simply be returned
+        if tree.value in ['|', '*', '+', '(', ')']:
+            return tree.value
 
-    for i in range(1, len(exprs)):
-        if '*' in exprs[i]:
-            temp_nfa = NFA()
-            star(temp_nfa, exprs[i])
+        # if chars then build a sub NFA e.g. a -> s0--a-->s1
         else:
-            temp_nfa = NFA()
-            temp_nfa.concat(exprs[i])
-        sub_nfa.create_or_branch(temp_nfa)
+            nfa = []
+            
+            init_state = State()
+            final_state = State()
 
-    nfa.concat_nfa(sub_nfa)
+            final_state.add_in_link( (init_state, tree.value) )
+            init_state.add_out_link( (final_state, tree.value) )
 
-def star(nfa, exprs):
+            nfa.append(init_state)
+            nfa.append(final_state)
+
+            return nfa
+
+def concat(nfa1, nfa2):
     '''
-    Add the elements of exprs to the NFA and kleene star certain chars depending on their position in exprs.
-    e.g. : 'aa*bb' -> ['aa', 'bb']
-           length of exprs is 2 so 1 kleene star to be applied (all but the last element)
-           if the first element is '' then the kleene star has been applied to the previous sub_nfa
-           if the last element is '' then apply the kleene star the previous char as normal and ignore as normal
+    Concatenate two NFAs by adding links between the final state of one and the initial state of the other.
 
-    @param nfa -- NFA
-    @param exprs -- list
+    @param nfa1 -- list
+    @param nfa2 -- list
+
+    @return list
     '''
-    exprs = exprs.split('*')
-    num_stars = len(exprs) - 1
-    i = 0
+    nfa1[-1].add_out_link( (nfa2[0], epsilon) )
+    nfa2[0].add_in_link( (nfa1[-1], epsilon) )
 
-    for e in exprs:
-        if e is not '':
-            nfa.concat(e)
-            if i < num_stars:
-                nfa.kleene_star(e[-1])
-        i = i+1
+    return nfa1 + nfa2
 
-def split_regex(regex):
+def create_or_branch(nfa1, nfa2):
     '''
-    Split the regular expression into parts to be made into an nfa and then merged together.
+    Create or branch by adding a new final and init state, 
+    having seperate paths from the init to the final through the two NFAs.
 
-    @param regex -- String
+    @param nfa1 -- list
+    @param nfa2 -- list
 
-    @return -- iterator
+    @return list
     '''
-    output = []
-    bracket = False
-    sub_part = ""
-    sub_parts_dict = {}
-    i = 0
+    new_init_state = State()
+    new_init_state.add_out_link( (nfa1[0], epsilon) )
+    new_init_state.add_out_link( (nfa2[0], epsilon) )
 
-    for r in regex:
-        if bracket and r is not ')':
-            sub_part = sub_part + r
-        elif r is '(':
-            if sub_part is not "":
-                output.append(sub_part)
-            sub_part = ""
-            bracket = True
-        elif r is ')':
-            sub_parts_dict[i] = sub_part
-            sub_part = ""
-            bracket = False
-            output.append(i)
-            i = i+1
-        else:
-            sub_part = sub_part + r
+    new_final_state = State()
+    new_final_state.add_in_link( (nfa1[-1], epsilon) )
+    new_final_state.add_in_link( (nfa2[-1], epsilon) )
 
-    if sub_part is not "":
-        output.append(sub_part)
+    nfa1[0].add_in_link( (new_init_state, epsilon) )
+    nfa2[0].add_in_link( (new_init_state, epsilon) )
+
+    nfa1[-1].add_out_link( (new_final_state, epsilon) )
+    nfa2[-1].add_out_link( (new_final_state, epsilon) )
+
+    return [new_init_state] + nfa1 + nfa2 + [new_final_state]
+
+def kleene_star(nfa):
+    '''
+    Implement kleene star by creating new init and final states.
+    Link the new init to the new final as well as the init of the NFA.
+    Link the final of the NFA to the new final as well as to the init of the NFA.
     
-    return output, sub_parts_dict
+    @param nfa -- list
+
+    @return list
+    '''
+    new_final_state = State()
+    new_final_state.add_in_link( (nfa[-1], epsilon) )
+
+    new_init_state = State()
+    new_init_state.add_out_link( (nfa[0], epsilon) )
+
+    new_init_state.add_out_link( (new_final_state, epsilon) )
+    new_final_state.add_in_link( (new_init_state, epsilon) )
+
+    nfa[-1].add_out_link( (nfa[0], epsilon) )
+    nfa[0].add_in_link( (nfa[-1], epsilon) )
+
+    nfa[-1].add_out_link( (new_final_state, epsilon) )
+    nfa[0].add_in_link( (new_init_state, epsilon) )
+
+    return [new_init_state] + nfa + [new_final_state]
+
+def print_nfa(n):
+    '''
+    Print each state's outgoing links of the given NFA.
+
+    @param n -- list
+    '''
+    num_states = 0
+
+    for state in n:
+        if state.state_no is None:
+            state.state_no = num_states
+            num_states += 1
+        for s, c in state.get_out_links():
+            if s.state_no is None:
+                s.state_no = num_states
+                num_states += 1
+            print("state{} -- {} --> state{}".format(state.state_no, c, s.state_no))
