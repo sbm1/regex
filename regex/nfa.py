@@ -1,5 +1,45 @@
 epsilon = 'E'
 
+class NFA(object):
+    '''
+    Non-deterministic Finite Automaton object
+    '''
+    def __init__(self, tree):
+        '''
+        Initialise the NFA using a ParseTree
+
+        @param tree -- ParseTree
+        '''
+        self._states = build_nfa(tree)
+        self.assign_states()
+
+    def __repr__(self):
+        output = ""
+        for state in self._states:
+            for s, c in state.get_out_links():
+                output += "state{} -- {} --> state{}\n".format(state.state_no, c, s.state_no)
+        return output
+
+    def __iter__(self):
+        '''
+        Iterates thru each state's outgoing links: ( state, linked state, char linking states )
+        '''
+        for state in self._states:
+            for s, c in state.get_out_links():
+                yield state, s, c
+
+    def assign_states(self):
+        '''
+        Assign state numbers to each state in the automaton.
+        '''
+        num_states = 0
+
+        for state in self._states:
+            if state.state_no is None:
+                state.state_no = num_states
+                num_states += 1
+
+
 class State(object):
     '''
     Each state of an NFA.
@@ -192,21 +232,3 @@ def kleene_star(nfa):
     nfa[0].add_in_link( (new_init_state, epsilon) )
 
     return [new_init_state] + nfa + [new_final_state]
-
-def print_nfa(n):
-    '''
-    Print each state's outgoing links of the given NFA.
-
-    @param n -- list
-    '''
-    num_states = 0
-
-    for state in n:
-        if state.state_no is None:
-            state.state_no = num_states
-            num_states += 1
-        for s, c in state.get_out_links():
-            if s.state_no is None:
-                s.state_no = num_states
-                num_states += 1
-            print("state{} -- {} --> state{}".format(state.state_no, c, s.state_no))
