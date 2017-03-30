@@ -2,11 +2,11 @@ from itertools import chain
 
 class ParseTree(object):
     '''
-    Parse Tree containing root RegexNode
+    Parse Tree built using Parser.root
     '''
     def __init__(self, v):
         '''
-        root -- Root RegexNode
+        @param v -- node value
         '''
         self.value = v
         self.children = []
@@ -29,6 +29,13 @@ class ParseTree(object):
 
 
 def build_tree(t):
+    '''
+    Build a ParseTree using the list of lists generated from the parser
+
+    @param t -- list
+
+    @return -- ParseTree
+    '''
     root = ParseTree(None)
 
     if isinstance(t, str):
