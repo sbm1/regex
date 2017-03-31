@@ -123,13 +123,15 @@ def build_nfa(tree):
 
         # '+' will be the same but has different application
         elif '+' in sub_nfas and len(sub_nfas) == 2:
-            return concat(sub_nfas[0], kleene_star(sub_nfas[0]))
+            return plus(sub_nfas[0])
 
         # bracket nodes will be [ '(', nfa, ')', '*' ]
         # the final star may not be there so both sizes will need to be checked
         elif '(' in sub_nfas and (len(sub_nfas) == 4 or len(sub_nfas) == 3):
             if '*' in sub_nfas:
                 return kleene_star(sub_nfas[1])
+            elif '+' in sub_nfas:
+                return plus(sub_nfas[1])
             else:
                 return sub_nfas[1]
         
@@ -224,6 +226,28 @@ def kleene_star(nfa):
 
     new_init_state.add_out_link( (new_final_state, epsilon) )
     new_final_state.add_in_link( (new_init_state, epsilon) )
+
+    nfa[-1].add_out_link( (nfa[0], epsilon) )
+    nfa[0].add_in_link( (nfa[-1], epsilon) )
+
+    nfa[-1].add_out_link( (new_final_state, epsilon) )
+    nfa[0].add_in_link( (new_init_state, epsilon) )
+
+    return [new_init_state] + nfa + [new_final_state]
+
+def plus(nfa):
+    '''
+    Similar to kleene star, leaving out link from init state to new final state
+
+    @param nfa -- list
+
+    @return list
+    '''
+    new_final_state = State()
+    new_final_state.add_in_link( (nfa[-1], epsilon) )
+
+    new_init_state = State()
+    new_init_state.add_out_link( (nfa[0], epsilon) )
 
     nfa[-1].add_out_link( (nfa[0], epsilon) )
     nfa[0].add_in_link( (nfa[-1], epsilon) )
