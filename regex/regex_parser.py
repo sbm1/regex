@@ -64,6 +64,12 @@ class Regex(Parser):
         print("Illegal characters!")
         t.lexer.skip(1)
 
+    precedence = (
+            ('left', 'OR'),
+            ('left', 'PLUS', 'ASTERIX'),
+            ('left', 'LBRACKET', 'RBRACKET')
+            )
+
     # grammar defined below
     def p_grammar(self, p):
         '''
