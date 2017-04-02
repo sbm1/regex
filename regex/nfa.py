@@ -39,6 +39,9 @@ class NFA(object):
                 state.state_no = num_states
                 num_states += 1
 
+    def get_states(self):
+        return self._states
+
 
 class State(object):
     '''
