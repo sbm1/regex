@@ -43,6 +43,9 @@ class NFA(object):
     def get_states(self):
         return self._states
 
+    def get_num_states(self):
+        return len(self._states)
+
 
 class State(object):
     '''

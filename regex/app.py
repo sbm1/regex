@@ -122,7 +122,6 @@ def create_nfa(app, nfa):
     '''
     # state pos and state tuples in list
     state_pos = {}
-    states = nfa.get_states()
     
     app.ratio = int(app.screenwidth / 14)
     x = app.ratio
