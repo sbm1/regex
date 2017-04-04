@@ -5,7 +5,7 @@ if ".." not in sys.path: sys.path.insert(0,"..")
 from regex.parse_tree import build_tree
 from regex.regex_parser import Regex
 from regex.nfa import NFA
-from regex.app import RegexApp
+from regex.app import RegexApp, create_nfa
 
 parser = Regex()
 
@@ -17,9 +17,9 @@ while 1:
         #print(tree)
         #print(list(iter(tree)))
         nfa = NFA(tree)
-        #print(nfa)
+        print(nfa)
         app = RegexApp()
-        app.create_nfa(nfa)
+        create_nfa(app, nfa)
         app.mainloop()
     except EOFError:
         break
