@@ -25,8 +25,7 @@ class NFA(object):
         Iterates thru each state's outgoing links: ( state, linked state, char linking states )
         '''
         for state in self._states:
-            for s, c in state.get_out_links():
-                yield state, s, c
+            yield state, state.get_out_links()
 
     def assign_states(self):
         '''
@@ -38,6 +37,8 @@ class NFA(object):
             if state.state_no is None:
                 state.state_no = num_states
                 num_states += 1
+            if not state.get_out_links():
+                state.make_accept()
 
     def get_states(self):
         return self._states
@@ -78,6 +79,12 @@ class State(object):
         @return -- boolean
         '''
         return self._accept
+
+    def make_accept(self):
+        '''
+        Set accept state.
+        '''
+        self._accept = True
 
     def add_out_link(self, edge):
         '''

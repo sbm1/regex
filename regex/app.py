@@ -33,7 +33,7 @@ class RegexApp(tk.Tk):
 
         self._state_radius = 10
         # state pos and state tuples in list
-        self._state_pos = []
+        self._state_pos = {}
 
         ratio = 50
         x = ratio
@@ -41,7 +41,12 @@ class RegexApp(tk.Tk):
 
         self._create_state(x, y, 0)
         self._create_line(x/2, y, x-self._state_radius, y)
-        self._state_pos.append( (0, (x, y)) )
+        self._state_pos[0] = (x, y)
+
+        for state, links in states:
+            if links:
+                if len(links) == 2:
+                    #
 
     def _create_state(self, x, y, n):
         '''
@@ -54,7 +59,7 @@ class RegexApp(tk.Tk):
         self.canvas.create_oval(x-self._state_radius, y-self._state_radius, 
                                 x+self._state_radius, y+self._state_radius,
                                 outline='black', fill='white', tags='state')
-        self.canvas.create_text(x, y, text='s{}'.format(n))
+        self.canvas.create_text(x, y, text='s{}'.format(n), tags='text')
 
     def _create_line(self, xA, yA, xB, yB):
         '''
@@ -65,7 +70,7 @@ class RegexApp(tk.Tk):
         @param xB -- int, State B x pos
         @param yB -- int, State B y pos
         '''
-        self.canvas.create_line((xA, yA), (xB, yB), smooth=True, arrow=tk.LAST)
+        self.canvas.create_line((xA, yA), (xB, yB), smooth=True, arrow=tk.LAST, tags='link')
 
     def _create_arc_line(self, xA, yA, xB, yB, d=100):
         '''
