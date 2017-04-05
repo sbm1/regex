@@ -173,7 +173,7 @@ def draw_nfa(app, nfa, state_pos):
                 x1, y1 = state_pos[s.state_no]
                 if s.state_no < n:
                     app.create_arc_line(x, y, x1, y1, n - s.state_no, direction='back', label=c)
-                elif y == y1 and s.state_no-1 > n:
+                elif y == y1 and s.state_no-1 > n and len(state.get_in_links()) == 2:
                     app.create_arc_line(x, y, x1, y1, s.state_no - n, direction='forward', label=c)
                 else:
                     app.create_line(x, y, x1, y1, label=c)
