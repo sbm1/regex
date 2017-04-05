@@ -56,7 +56,7 @@ class Regex(Parser):
         return t
 
     def t_EMPTY(self, t):
-        r'\{\}'
+        r'\[\]'
         t.type = 'EMPTY'
         return t
 
@@ -81,7 +81,6 @@ class Regex(Parser):
         '''
         regex : regex OR expression
               | expression
-              | empty
         '''
         p[0] = p[1:]
 
@@ -104,13 +103,7 @@ class Regex(Parser):
         bracketexpr : LBRACKET regex RBRACKET symbol
         '''
         p[0] = p[1:]
-    """
-    def p_orexpr(self, p):
-        '''
-        orexpr : expr OR expr
-        '''
-        p[0] = p[1:]
-    """
+    
     def p_id(self, p):
         '''
         id : ID symbol

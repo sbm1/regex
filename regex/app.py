@@ -123,7 +123,7 @@ def create_nfa(app, nfa):
     # state pos and state tuples in list
     state_pos = {}
     
-    app.ratio = int(app.screenwidth / 12)
+    app.ratio = int(app.screenwidth / 13)
     x = app.ratio
     y = app.screenheight / 2
 
@@ -158,8 +158,6 @@ def create_nfa(app, nfa):
                         x = x+app.ratio
                     state_pos[s1.state_no] = (x, y1+app.ratio/2)
                 else:
-                    if y > app.screenheight/2:
-                        y += app.ratio/2
                     state_pos[s1.state_no] = (x+app.ratio, y)
 
     draw_nfa(app, nfa, state_pos)
