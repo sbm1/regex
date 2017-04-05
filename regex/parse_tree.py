@@ -44,7 +44,31 @@ def build_tree(t):
     elif t is not None:
         root = ParseTree(None)
         for c in t:
-            node = build_tree(c)
-            root.children.append(node)
+            if c is '[':
+                node = build_tree(range_to_id(t))
+                root.children.append(node)
+                break
+            else:
+                node = build_tree(c)
+                root.children.append(node)
 
     return root
+
+def range_to_id(t):
+    '''
+    Unnest the elements of the range and concatenate them to a string.
+    E.g. ['[', ['^'], [['a', '-', 'z']], ']'] -> "[^a-z]"
+
+    @param t -- list
+
+    @return str
+    '''
+    ret = ""
+
+    for c in t:
+        while isinstance(c, list):
+            c = range_to_id(c)
+        if isinstance(c, str):
+            ret = ret + c
+
+    return ret
