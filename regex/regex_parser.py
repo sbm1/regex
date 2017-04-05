@@ -107,30 +107,42 @@ class Regex(Parser):
 
     def p_orexpr(self, p):
         '''
-        orexpr : expression OR expression
+        orexpr : expr OR expr
         '''
         p[0] = p[1:]
 
     def p_id(self, p):
         '''
         id : ID symbol
-           | LBRACE range RBRACE symbol
+           | range symbol
            | EMPTY
         '''
         p[0] = p[1:]
 
     def p_range(self, p):
         '''
-        range : range rangeid
-              | empty
+        range : LBRACE not subranges RBRACE
         '''
         p[0] = p[1:]
 
-    # TODO: add NOT token and generally improve grammar
-    def p_rangeid(self, p):
+    def p_not(self, p):
         '''
-        rangeid : ID
-                | ID DASH ID
+        not : NOT
+            | empty
+        '''
+        p[0] = p[1:]
+    
+    def p_subranges(self, p):
+        '''
+        subranges : subranges subrange
+                  | subrange
+        '''
+        p[0] = p[1:]
+
+    def p_subrange(self, p):
+        '''
+        subrange : ID
+                 | ID DASH ID
         '''
         p[0] = p[1:]
 
