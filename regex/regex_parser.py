@@ -9,6 +9,7 @@ class Parser(object):
 
     def __init__(self):
         self.tree = None
+        self.error = False
         
         lex.lex(module=self)
         yacc.yacc(module=self)
@@ -154,4 +155,5 @@ class Regex(Parser):
         p[0] = None
 
     def p_error(self, p):
+        self.error = True
         print("Syntax error found!")

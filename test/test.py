@@ -14,25 +14,27 @@ while 1:
     try:
         input_expression = input("RE:\n>> ")
         parser.run(input_expression)
-        tree = build_tree(parser.tree)
-        #print(tree)
-        #print(list(iter(tree)))
-        nfa = NFA(tree)
-        print(nfa)
 
-        test_str = input("Test:\n>> ")
-        p = re.compile(input_expression)
-        m = p.match(test_str)
+        if not parser.error:
+            tree = build_tree(parser.tree)
+            #print(tree)
+            #print(list(iter(tree)))
+            nfa = NFA(tree)
+            print(nfa)
 
-        if m is None:
-            print("Reject.")
-        elif m.group() is test_str:
-            print("Accept.")
-        else:
-            print("Reject.")
+            test_str = input("Test:\n>> ")
+            p = re.compile(input_expression)
+            m = p.match(test_str)
+
+            if m is None:
+                print("Reject.")
+            elif m.group() is test_str:
+                print("Accept.")
+            else:
+                print("Reject.")
         
-        app = RegexApp()
-        create_nfa(app, nfa)
-        app.mainloop()
+            app = RegexApp()
+            create_nfa(app, nfa)
+            app.mainloop()
     except EOFError:
         break
