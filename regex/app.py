@@ -106,7 +106,7 @@ class RegexApp(tk.Tk):
             # curve forward over
             posY = self.state_rad
             xC = xA + (xB-xA)/2
-            yC = yA + r * d
+            yC = yA + r * d / 2
             textY = yC - (yC-yA)/2 - 5
 
         self.canvas.create_line((xA, yA), (xC, yC), (xB, yB+posY), smooth=True, arrow=tk.LAST)
@@ -123,7 +123,7 @@ def create_nfa(app, nfa):
     # state pos and state tuples in list
     state_pos = {}
     
-    app.ratio = int(app.screenwidth / 14)
+    app.ratio = int(app.screenwidth / 12)
     x = app.ratio
     y = app.screenheight / 2
 
@@ -158,6 +158,8 @@ def create_nfa(app, nfa):
                         x = x+app.ratio
                     state_pos[s1.state_no] = (x, y1+app.ratio/2)
                 else:
+                    if y > app.screenheight/2:
+                        y += app.ratio/2
                     state_pos[s1.state_no] = (x+app.ratio, y)
 
     draw_nfa(app, nfa, state_pos)
@@ -173,7 +175,7 @@ def draw_nfa(app, nfa, state_pos):
                 x1, y1 = state_pos[s.state_no]
                 if s.state_no < n:
                     app.create_arc_line(x, y, x1, y1, n - s.state_no, direction='back', label=c)
-                elif y == y1 and s.state_no-1 > n and len(state.get_in_links()) == 2:
+                elif y == y1 and s.state_no-1 > n:
                     app.create_arc_line(x, y, x1, y1, s.state_no - n, direction='forward', label=c)
                 else:
                     app.create_line(x, y, x1, y1, label=c)

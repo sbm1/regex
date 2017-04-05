@@ -79,7 +79,8 @@ class Regex(Parser):
 
     def p_regex(self, p):
         '''
-        regex : expression
+        regex : regex OR expression
+              | expression
               | empty
         '''
         p[0] = p[1:]
@@ -94,7 +95,6 @@ class Regex(Parser):
     def p_expr(self, p):
         '''
         expr : bracketexpr
-             | orexpr
              | id
         '''
         p[0] = p[1:]
@@ -104,13 +104,13 @@ class Regex(Parser):
         bracketexpr : LBRACKET regex RBRACKET symbol
         '''
         p[0] = p[1:]
-
+    """
     def p_orexpr(self, p):
         '''
         orexpr : expr OR expr
         '''
         p[0] = p[1:]
-
+    """
     def p_id(self, p):
         '''
         id : ID symbol
