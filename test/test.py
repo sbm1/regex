@@ -20,7 +20,7 @@ while 1:
             #print(tree)
             #print(list(iter(tree)))
             nfa = NFA(tree)
-            print(nfa)
+            #print(nfa)
 
             test_str = input("Test:\n>> ")
             p = re.compile(input_expression)
