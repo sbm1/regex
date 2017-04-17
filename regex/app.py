@@ -131,11 +131,19 @@ def create_nfa(app, nfa):
 
     for state, links in iter(nfa):
         # 0, 1 or 2 out links
+        x, y = state_pos[state.state_no]
+
+        if x + app.ratio >= app.screenwidth:
+            for i in state_pos:
+                xv, yv = state_pos[i]
+                state_pos[i] = (xv*.75, yv)
+                app.ratio *= .75
+
         if links:
             # first state link
             s1, c1 = links[0]
             # current states x, y position
-            x, y = state_pos[state.state_no]
+
             if len(links) == 2:
                 # second state link
                 s2, c2 = links[1]

@@ -1,4 +1,4 @@
-epsilon = 'E'
+epsilon = 'ϵ'
 
 class NFA(object):
     '''
