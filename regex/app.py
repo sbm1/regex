@@ -1,4 +1,7 @@
 import tkinter as tk
+from parse_tree import build_tree
+from regex_parser import Regex
+from nfa import NFA
 
 class RegexApp(tk.Tk):
     '''
@@ -8,16 +11,43 @@ class RegexApp(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.wm_title('Regex')
 
+        self.parser = Regex()
+
         self.screenwidth = self.winfo_screenwidth()
         self.screenheight = self.winfo_screenheight()
 
-        self.canvas = tk.Canvas(width=self.screenwidth, height=self.screenheight)
+        self.entry = tk.Entry(self, width=50)
+        self.entry.pack(padx=5, pady=5)
+        self.entry.focus()
+        self.entry.bind('<Return>', (lambda event: self.regex()))
+
+        self.button = tk.Button(self, width=25, bd=3, text='Submit', command=self.regex)
+        self.button.pack(padx=5, pady=5)
+
+        self.exit_button = tk.Button(self, width=25, bd=3, text='Exit', command=self.destroy)
+        self.exit_button.pack(padx=5, pady=5)
+
+        self.canvas = tk.Canvas(self, width=self.screenwidth, height=self.screenheight-200)
         self.canvas.pack(fill='both', expand=True)
         self.canvas.configure(background='white')
 
         # radius of states
         self.state_rad = 20
         self.ratio = 100
+
+    def regex(self):
+        '''
+        Main regex function.
+        '''
+        self.clear()
+
+        usr_input = self.entry.get()
+        self.parser.run(usr_input)
+
+        if not self.parser.error:
+            tree = build_tree(self.parser.tree)
+            nfa = NFA(tree)
+            create_nfa(self, nfa)
 
     def clear(self, tag='all'):
         '''
@@ -191,3 +221,8 @@ def draw_nfa(app, nfa, state_pos):
             app.create_state(x, y, n)
         else:
             app.create_final_state(x, y, n)
+
+
+if __name__ == '__main__':
+    app = RegexApp()
+    app.mainloop()
