@@ -79,7 +79,7 @@ class RegexApp(tk.Tk):
                 for i in range(5):
                     next_ex_str = rstr.xeger(usr_input)
                     
-                    if next_ex_str is ex_str:
+                    if next_ex_str == ex_str:
                         break
                     ex_str = next_ex_str
 

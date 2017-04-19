@@ -57,7 +57,7 @@ class State(object):
         Initialise state.
         Vars: accept    -- whether the state is an accept state
               out_links -- list of State objects that this state has an outward connection to
-              in_links  -- list of State objects that this state has an outward connection to
+              in_links  -- list of State objects that this state has an inward connection to
               state_no  -- number of the state in the NFA (initially not set)
         '''
         self._accept = False
@@ -102,6 +102,26 @@ class State(object):
         @param edge -- tuple
         '''
         self._in_links.append(edge)
+    
+    def remove_out_link(self, s, c):
+        '''
+        Removes a given edge if it exists in the state's out links.
+        @param s -- State
+        @param c -- str
+        '''
+        for state, ch in self._out_links:
+            if s is state and c is ch:
+                self._out_links.remove( (s, c) )
+
+    def remove_in_link(self, s, c):
+        '''
+        Removes a given edge if it exists in the state's in links.
+        @param s -- State
+        @param c -- str
+        '''
+        for state, ch in self._in_links:
+            if s is state and c is ch:
+                self._in_links.remove( (s, c) )
 
 
 def build_nfa(tree):
@@ -190,10 +210,14 @@ def concat(nfa1, nfa2):
 
     @return list
     '''
-    nfa1[-1].add_out_link( (nfa2[0], epsilon) )
-    nfa2[0].add_in_link( (nfa1[-1], epsilon) )
+    for state, c in nfa2[0].get_out_links():
+        nfa1[-1].add_out_link( (state, c) )
+        for st, ch in state.get_in_links():
+            if st is nfa2[0]:
+                st.remove_in_link(st, ch)
+                st.add_in_link( (nfa1[-1], ch) )
 
-    return nfa1 + nfa2
+    return nfa1 + nfa2[1:]
 
 def create_or_branch(nfa1, nfa2):
     '''
