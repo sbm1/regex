@@ -2,6 +2,7 @@ import tkinter as tk
 from parse_tree import build_tree
 from regex_parser import Regex
 from nfa import NFA
+import re
 
 class RegexApp(tk.Tk):
     '''
@@ -16,10 +17,18 @@ class RegexApp(tk.Tk):
         self.screenwidth = self.winfo_screenwidth()
         self.screenheight = self.winfo_screenheight()
 
-        self.entry = tk.Entry(self, width=50)
-        self.entry.pack(padx=5, pady=5)
-        self.entry.focus()
-        self.entry.bind('<Return>', (lambda event: self.regex()))
+        self.label1 = tk.Label(self, text='Regular Expression: ')
+        self.label1.pack()
+        self.regex_entry = tk.Entry(self, width=50)
+        self.regex_entry.pack(padx=5, pady=5)
+        self.regex_entry.focus()
+
+        self.label2 = tk.Label(self, text='Test String: ')
+        self.label2.pack()
+        self.test_entry = tk.Entry(self, width=50)
+        self.test_entry.pack(padx=5, pady=5)
+
+        self.bind('<Return>', (lambda event: self.regex()))
 
         self.button = tk.Button(self, width=25, bd=3, text='Submit', command=self.regex)
         self.button.pack(padx=5, pady=5)
@@ -41,13 +50,27 @@ class RegexApp(tk.Tk):
         '''
         self.clear()
 
-        usr_input = self.entry.get()
-        self.parser.run(usr_input)
+        usr_input = self.regex_entry.get()
+        test_input = self.test_entry.get()
+        
+        if len(usr_input) > 0:
+            self.parser.run(usr_input)
 
-        if not self.parser.error:
-            tree = build_tree(self.parser.tree)
-            nfa = NFA(tree)
-            create_nfa(self, nfa)
+            if not self.parser.error:
+                if len(test_input) > 0:
+                    p = re.compile(usr_input)
+                    m = p.match(test_input)
+                    
+                    if m is None:
+                        self.canvas.create_text(self.screenwidth/2, 10, text='Reject: {}'.format(test_input), tags='text')
+                    elif m.group() is test_input:
+                        self.canvas.create_text(self.screenwidth/2, 10, text='Accept: {}'.format(test_input), tags='text')
+                    else:
+                        self.canvas.create_text(self.screenwidth/2, 10, text='Reject: {}'.format(test_input), tags='text')
+
+                tree = build_tree(self.parser.tree)
+                nfa = NFA(tree)
+                create_nfa(self, nfa)
 
     def clear(self, tag='all'):
         '''
