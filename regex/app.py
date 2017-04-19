@@ -2,7 +2,7 @@ import tkinter as tk
 from parse_tree import build_tree
 from regex_parser import Regex
 from nfa import NFA
-import re
+import re, rstr
 
 class RegexApp(tk.Tk):
     '''
@@ -52,6 +52,9 @@ class RegexApp(tk.Tk):
 
         usr_input = self.regex_entry.get()
         test_input = self.test_entry.get()
+
+        #text output position
+        top = 10
         
         if len(usr_input) > 0:
             self.parser.run(usr_input)
@@ -62,11 +65,26 @@ class RegexApp(tk.Tk):
                     m = p.match(test_input)
                     
                     if m is None:
-                        self.canvas.create_text(self.screenwidth/2, 10, text='Reject: {}'.format(test_input), tags='text')
+                        self.canvas.create_text(self.screenwidth/2, top, text='Reject: {}'.format(test_input), tags='text')
                     elif m.group() is test_input:
-                        self.canvas.create_text(self.screenwidth/2, 10, text='Accept: {}'.format(test_input), tags='text')
+                        self.canvas.create_text(self.screenwidth/2, top, text='Accept: {}'.format(test_input), tags='text')
                     else:
-                        self.canvas.create_text(self.screenwidth/2, 10, text='Reject: {}'.format(test_input), tags='text')
+                        self.canvas.create_text(self.screenwidth/2, top, text='Reject: {}'.format(test_input), tags='text')
+                    top += 20
+
+                self.canvas.create_text(self.screenwidth/2, top, text='Example accept string:', tags='text')
+                top += 20
+                
+                ex_str = ''
+                for i in range(5):
+                    next_ex_str = rstr.xeger(usr_input)
+                    
+                    if next_ex_str is ex_str:
+                        break
+                    ex_str = next_ex_str
+
+                    self.canvas.create_text(self.screenwidth/2, top, text=ex_str, tags='text')
+                    top +=15
 
                 tree = build_tree(self.parser.tree)
                 nfa = NFA(tree)
