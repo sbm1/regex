@@ -1,6 +1,6 @@
 import sys
 
-if ".." not in sys.path: sys.path.insert(0,"..")
+if ".." not in sys.path: sys.path.insert(0, "..")
 
 from regex.regex_parser import Regex
 

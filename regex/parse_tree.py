@@ -1,13 +1,15 @@
 from itertools import chain
 
+
 class ParseTree(object):
-    '''
+    """
     Parse Tree built using Parser.root
-    '''
+    """
+
     def __init__(self, v):
-        '''
+        """
         @param v -- node value
-        '''
+        """
         self.value = v
         self.children = []
 
@@ -18,7 +20,7 @@ class ParseTree(object):
             output = "-" * level + self.value.strip() + "\n"
 
         for child in self.children:
-            output += child.__repr__(level+1)
+            output += child.__repr__(level + 1)
 
         return output
 
@@ -29,13 +31,13 @@ class ParseTree(object):
 
 
 def build_tree(t):
-    '''
+    """
     Build a ParseTree using the list of lists generated from the parser
 
     @param t -- list
 
     @return -- ParseTree
-    '''
+    """
     root = ParseTree(None)
 
     if isinstance(t, str):
@@ -54,21 +56,22 @@ def build_tree(t):
 
     return root
 
+
 def range_to_id(t):
-    '''
+    """
     Unnest the elements of the range and concatenate them to a string.
     E.g. ['[', ['^'], [['a', '-', 'z']], ']'] -> "[^a-z]"
 
     @param t -- list
 
     @return str
-    '''
+    """
     ret = ""
 
     for c in t:
         while isinstance(c, list):
             c = range_to_id(c)
         if isinstance(c, str):
-            ret = ret + c
+            ret += c
 
     return ret

@@ -1,43 +1,44 @@
 from ply import lex, yacc
 
+
 class Parser(object):
-    '''
+    """
     Base class for a lexer/parser
-    '''
+    """
     tokens = ()
     precedence = ()
 
     def __init__(self):
         self.tree = None
         self.error = False
-        
+
         lex.lex(module=self)
         yacc.yacc(module=self)
-        
+
     def run(self, s):
-        '''
+        """
         Run the parser on input s
-        
+
         @param s -- String input
-        '''
+        """
         yacc.parse(s)
-        
+
 
 class Regex(Parser):
     # tokens
     tokens = (
-            'ID', 
-            'ASTERIX', 
-            'PLUS', 
-            'LBRACKET', 
-            'RBRACKET', 
-            'OR', 
-            'LBRACE', 
-            'RBRACE', 
-            'DASH', 
-            'NOT', 
-            'EMPTY'
-            )
+        'ID',
+        'ASTERIX',
+        'PLUS',
+        'LBRACKET',
+        'RBRACKET',
+        'OR',
+        'LBRACE',
+        'RBRACE',
+        'DASH',
+        'NOT',
+        'EMPTY'
+    )
 
     # token definitions (using RE)
     t_ASTERIX = r'\*'
@@ -66,92 +67,92 @@ class Regex(Parser):
         t.lexer.skip(1)
 
     precedence = (
-            ('left', 'OR'),
-            ('left', 'PLUS', 'ASTERIX'),
-            ('left', 'LBRACKET', 'RBRACKET')
-            )
+        ('left', 'OR'),
+        ('left', 'PLUS', 'ASTERIX'),
+        ('left', 'LBRACKET', 'RBRACKET')
+    )
 
     # grammar defined below
     def p_grammar(self, p):
-        '''
+        """
         grammar : regex
-        '''
+        """
         self.tree = p[1:]
 
     def p_regex(self, p):
-        '''
+        """
         regex : regex OR expression
               | expression
-        '''
+        """
         p[0] = p[1:]
 
     def p_expression(self, p):
-        '''
+        """
         expression : expression expr
                    | expr
-        '''
+        """
         p[0] = p[1:]
 
     def p_expr(self, p):
-        '''
+        """
         expr : bracketexpr
              | id
-        '''
+        """
         p[0] = p[1:]
 
     def p_bracketexpr(self, p):
-        '''
+        """
         bracketexpr : LBRACKET regex RBRACKET symbol
-        '''
+        """
         p[0] = p[1:]
-    
+
     def p_id(self, p):
-        '''
+        """
         id : ID symbol
            | range symbol
            | EMPTY
-        '''
+        """
         p[0] = p[1:]
 
     def p_range(self, p):
-        '''
+        """
         range : LBRACE not subranges RBRACE
-        '''
+        """
         p[0] = p[1:]
 
     def p_not(self, p):
-        '''
+        """
         not : NOT
             | empty
-        '''
+        """
         p[0] = p[1:]
-    
+
     def p_subranges(self, p):
-        '''
+        """
         subranges : subranges subrange
                   | subrange
-        '''
+        """
         p[0] = p[1:]
 
     def p_subrange(self, p):
-        '''
+        """
         subrange : ID
                  | ID DASH ID
-        '''
+        """
         p[0] = p[1:]
 
     def p_symbol(self, p):
-        '''
+        """
         symbol : ASTERIX
                | PLUS
                | empty
-        '''
+        """
         p[0] = p[1:]
 
     def p_empty(self, p):
-        '''
-        empty : 
-        '''
+        """
+        empty :
+        """
         p[0] = None
 
     def p_error(self, p):
